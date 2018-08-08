@@ -1,13 +1,29 @@
 'use strict';
 
-app.controller('HomeCtrl', function(Auth, $scope) {
+app.controller('HomeCtrl', function(Auth, $ionicLoading, $scope, Like, uid) {
   var home = this;
+  home.currentIndex = null;
+  home.currentCardUid = null;
   // home.profiles = Auth.getProfiles();
   var maxAge = null;
   var men = null;
   var women = null;
+  var currentUid = uid;
+
+  $scope.show = function() {
+    $ionicLoading.show({
+      template: '<ion-spinner icon="bubbles"></ion-spinner>'
+    });
+  }
+
+  $scope.hide = function() {
+    $ionicLoading.hide();
+  }
 
   function init() {
+
+    $scope.show();
+
     home.profiles = [];
 
     maxAge = JSON.parse(window.localStorage.getItem('maxAge')) || 25;
@@ -23,16 +39,51 @@ app.controller('HomeCtrl', function(Auth, $scope) {
       for (var i = 0; i < data.length; i++) {
         var item = data[i];
 
-        if ((item.gender == 'male' && men) || (item.gender == 'female' && women)) {
-          home.profiles.push(item);
-        } else {
-          home.profiles.push(item); // Hack, because gender was ""
+        if (item.$id != currentUid) {
+          if ((item.gender == 'male' && men) || (item.gender == 'female' && women)) {
+            home.profiles.push(item);
+          } else {
+            home.profiles.push(item); // Hack, because gender was ""
+          }
         }
       }
+
+      Like.allLikesByUser(currentUid).$loaded().then(function(likesList) {
+        home.profiles = _.filter(home.profiles, function(obj) {
+          return _.isEmpty(_.where(likesList, {$id: obj.$id}));
+        });
+      });
+
+      if (home.profiles.length > 0) {
+        home.currentIndex = home.profiles.length - 1;
+        home.currentCardUid = home.profiles[home.currentIndex].$id;
+      }
+
+      $scope.hide();
     });
   }
 
   $scope.$on('$ionicView.enter', function(e) {
     init();
-  })
+  });
+
+  home.nope = function(index) {
+    home.cardRemoved(index);
+    console.log('Nope');
+  };
+
+  home.like = function(index, like_uid) {
+    Like.addLike(currentUid, like_uid);
+    home.cardRemoved(index);
+    console.log('Like');
+  };
+
+  home.cardRemoved = function(index) {
+    home.profiles.splice(index, 1);
+
+    if (home.profiles.length > 0) {
+      home.currentIndex = home.profiles.length - 1;
+      home.currentCardUid = home.profiles[home.currentIndex].$id;
+    }
+  };
 });
