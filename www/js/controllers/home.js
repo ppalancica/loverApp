@@ -1,6 +1,6 @@
 'use strict';
 
-app.controller('HomeCtrl', function(Auth, $ionicLoading, $scope, Like, Match, uid) {
+app.controller('HomeCtrl', function(Auth, $ionicLoading, $ionicModal, $scope, Like, Match, uid) {
   var home = this;
   home.currentIndex = null;
   home.currentCardUid = null;
@@ -75,7 +75,7 @@ app.controller('HomeCtrl', function(Auth, $ionicLoading, $scope, Like, Match, ui
   home.like = function(index, like_uid) {
     Like.addLike(currentUid, like_uid);
     Match.checkMatch(currentUid, like_uid);
-    
+
     home.cardRemoved(index);
     console.log('Like');
   };
@@ -87,5 +87,21 @@ app.controller('HomeCtrl', function(Auth, $ionicLoading, $scope, Like, Match, ui
       home.currentIndex = home.profiles.length - 1;
       home.currentCardUid = home.profiles[home.currentIndex].$id;
     }
+  };
+
+  $ionicModal.fromTemplateUrl('templates/info.html', {
+    scope: $scope
+  })
+  .then(function(modal) {
+    $scope.modal = modal;
+  });
+
+  home.openModal = function() {
+    home.info = Auth.getProfile(home.currentCardUid);
+    $scope.modal.show();
+  };
+
+  home.closeModal = function() {
+    $scope.modal.hide();
   };
 });
