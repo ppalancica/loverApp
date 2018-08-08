@@ -141,7 +141,8 @@ var app = angular.module('starter', ['ionic', 'firebase'])
     url: '/home',
     views: {
       'menuContent': {
-        templateUrl: 'templates/home.html'
+        templateUrl: 'templates/home.html',
+        controller: 'HomeCtrl as home'
       }
     }
   })
@@ -151,6 +152,7 @@ var app = angular.module('starter', ['ionic', 'firebase'])
     views: {
       'menuContent': {
         templateUrl: 'templates/settings.html',
+        controller: 'SettingsCtrl as sett',
         resolve: {
           auth: function($state, Auth) {
             return Auth.requireAuth().catch(function() {

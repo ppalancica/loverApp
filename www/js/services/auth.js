@@ -3,7 +3,8 @@
 // app.factory('Auth', function(FURL, $firebaseAuth, $firebaseObject, $state) {
 // app.factory('Auth', function($firebaseAuth, $firebaseObject, $state) {
 // app.factory('Auth', function($firebaseAuth, $firebaseObject, $state, $http) {
-app.factory('Auth', function($firebaseAuth, $firebaseObject, $state, $http, $q) {
+// app.factory('Auth', function($firebaseAuth, $firebaseObject, $state, $http, $q) {
+app.factory('Auth', function($firebaseAuth, $firebaseObject, $firebaseArray, $state, $http, $q) {
 
   // var ref = new Firebase(FURL);
   // var auth = $firebaseAuth(ref);
@@ -113,6 +114,15 @@ app.factory('Auth', function($firebaseAuth, $firebaseObject, $state, $http, $q) 
     requireAuth: function() {
       // return auth.$requireAuth();
       return auth.$requireSignIn();
+    },
+
+    getProfiles: function() {
+      return $firebaseArray(ref.child('profiles'));
+    },
+
+    getProfilesByAge: function(age) {
+      // return $firebaseArray(ref.child('profiles').orderByChild('age').startAt(18).endAt(age));
+      return $firebaseArray(ref.child('profiles').orderByChild('age').startAt(18));
     }
   }
 
